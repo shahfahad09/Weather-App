@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <div class="card">
+        <form id="form">
+            <input type="text" id="country" placeholder="Enter Country Name" autocomplete="off" required />
+            <input type="text" id="city" placeholder="Enter City Name" autocomplete="off" required />
+            <button type="submit">Search Weather</button>
+        </form>
+        <main id="main"></main>
+        <div id="map" style="width: 100%; height: 300px;"></div> <!-- Div for map display -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
