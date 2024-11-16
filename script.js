@@ -1,85 +1,90 @@
 const API_KEY = "331e8e1033c9a5ed77d4105a9ae89494";
 
-const getCountryCode = async (countryName) => {
-    const response = await fetch("https://restcountries.com/v3.1/all");
-    const countries = await response.json();
-    const countryData = countries.find(
-        (country) => country.name.common.toLowerCase() === countryName.toLowerCase()
-    );
-    return countryData ? countryData.cca2.toLowerCase() : null;
+// Function to get full country name
+const getCountryName = async (countryCode) => {
+    const countryUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
+    const response = await fetch(countryUrl);
+    const countryData = await response.json();
+    return countryData[0].name.common;  // Full country name
 };
 
-const getWeatherData = async (city, countryCode) => {
-    // const geocodingUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${API_KEY}`;
-
-    const geocodingUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${API_KEY}`;
-
-    const response = await fetch(geocodingUrl);
+const getWeatherData = async (city) => {
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const response = await fetch(weatherUrl);
     const data = await response.json();
-
     if (data.cod === 200) {
         return data;
-    } else if (data.cod === "404") {
-        alert("City not found. Please check the name and try again!");
-        return null;
     } else {
-        alert(`The city '${city}' is not in the specified country. Please verify your inputs.`);
+        alert("City not found or error fetching data.");
         return null;
     }
 };
 
-const setBackground = (temperature) => {
-    const body = document.body;
-    body.classList.remove("cold", "cool", "warm", "hot");
+const formatDateTime = (timestamp) => {
+    const date = new Date(timestamp * 1000);  // Convert to milliseconds
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = date.toLocaleDateString(undefined, options);
 
-    if (temperature <= 5) {
-        body.classList.add("cold");
-    } else if (temperature > 5 && temperature <= 20) {
-        body.classList.add("cool");
-    } else if (temperature > 20 && temperature <= 30) {
-        body.classList.add("warm");
-    } else {
-        body.classList.add("hot");
-    }
+    // 12-hour format with AM/PM
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    // Convert 24-hour time to 12-hour time
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const formattedTime = `${hours}:${minutes} ${ampm}`;
+
+    return { date: formattedDate, time: formattedTime };
 };
 
 const displayWeather = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  const country = document.getElementById("country").value.trim();
-  const city = document.getElementById("city").value.trim();
+    const city = document.getElementById("city").value.trim();
 
-  // Check if country and city names are the same
-  if (country.toLowerCase() === city.toLowerCase()) {
-      alert("Both country and city are the same. Please change the city and country name.");
-      return;
-  }
+    if (!city) {
+        alert("Please enter a city name.");
+        return;
+    }
 
-  const countryCode = await getCountryCode(country);
+    const weatherData = await getWeatherData(city);
+    if (weatherData) {
+        const cityName = weatherData.name;
+        const countryCode = weatherData.sys.country; // Country code fetched from API
+        const temperature = weatherData.main.temp.toFixed(1);
+        const minTemp = weatherData.main.temp_min.toFixed(1);
+        const maxTemp = weatherData.main.temp_max.toFixed(1);
+        const realFeel = weatherData.main.feels_like.toFixed(1);
+        const humidity = weatherData.main.humidity;
+        const windSpeed = weatherData.wind.speed;
+        const pressure = weatherData.main.pressure;
+        const condition = weatherData.weather[0].description;
+        const timestamp = weatherData.dt; // Current weather timestamp
 
-  if (!countryCode) {
-      alert("Invalid country name. Please check and try again.");
-      return;
-  }
+        // Get full country name
+        const countryName = await getCountryName(countryCode);
 
-  const weatherData = await getWeatherData(city, countryCode);
+        // Get formatted date and time
+        const { date, time } = formatDateTime(timestamp);
 
-  if (weatherData) {
-      const temperature = weatherData.main.temp - 273.15; // Convert from Kelvin to Celsius
-      const description = weatherData.weather[0].description;
+        // Update the DOM with the weather data and current time
+        document.getElementById("location").textContent = `${cityName}, ${countryName}`;
+        document.getElementById("weather-condition").textContent = condition;
+        document.getElementById("temperature").textContent = `${temperature}°C`;
+        document.getElementById("min-max").textContent = `Min: ${minTemp}° Max: ${maxTemp}°`;
+        document.getElementById("real-feel").textContent = `${realFeel}°`;
+        document.getElementById("humidity").textContent = `${humidity}%`;
+        document.getElementById("wind").textContent = `${windSpeed} m/s`;
+        document.getElementById("pressure").textContent = `${pressure} hPa`;
 
-      setBackground(temperature);
+        // Display the current date and time
+        document.getElementById("date-time").textContent = `${date}, ${time}`;
 
-      document.getElementById("main").innerHTML = `
-          <div class="weather-card">
-              <h2>Weather in ${city.charAt(0).toUpperCase() + city.slice(1)}, ${country.charAt(0).toUpperCase() + country.slice(1)}</h2>
-              <div class="weather-details">
-                  <p>Temperature: ${temperature.toFixed(2)}°C</p>
-                  <p>Condition: ${description}</p>
-              </div>
-          </div>
-      `;
-  }
+        // Clear the input field and focus on it for the next search
+        document.getElementById("city").value = "";
+        document.getElementById("city").focus();
+    }
 };
 
 // Add event listener for form submission
