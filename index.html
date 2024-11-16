@@ -10,15 +10,44 @@
 <body>
     <div class="card">
         <form id="form">
-            <input type="text" id="country" placeholder="Enter Country Name" autocomplete="off" required />
             <input type="text" id="city" placeholder="Enter City Name" autocomplete="off" required />
             <button type="submit">Search Weather</button>
         </form>
-        <main id="main"></main>
-        <div id="map" style="width: 100%; height: 300px;"></div> <!-- Div for map display -->
-    </div>
+        <main id="main">
+            <div class="weather-display">
+                <h2 id="location">City, Country</h2>
+                <p id="weather-condition">Condition</p>
+                <div class="temperature">
+                    <h1 id="temperature">0°C</h1>
+                    <p id="min-max">Min: 0° Max: 0°</p>
+                </div>
+               <div class="date-time">
+    <p id="date-time">Date and Time</p>
+</div>
 
-    <!-- Scripts -->
+                <div class="weather-stats">
+                    <div class="stat">
+                        <p>Real Feel</p>
+                        <h3 id="real-feel">0°</h3>
+                    </div>
+                    <div class="stat">
+                        <p>Humidity</p>
+                        <h3 id="humidity">0%</h3>
+                    </div>
+                    <div class="stat">
+                        <p>Wind</p>
+                        <h3 id="wind">0 m/s</h3>
+                    </div>
+                    <div class="stat">
+                        <p>Pressure</p>
+                        <h3 id="pressure">0 hPa</h3>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+ 
+
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
