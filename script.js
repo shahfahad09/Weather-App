@@ -10,7 +10,10 @@ const getCountryCode = async (countryName) => {
 };
 
 const getWeatherData = async (city, countryCode) => {
-    const geocodingUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${API_KEY}`;
+    // const geocodingUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${API_KEY}`;
+
+    const geocodingUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${API_KEY}`;
+
     const response = await fetch(geocodingUrl);
     const data = await response.json();
 
